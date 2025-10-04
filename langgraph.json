@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "supervisor_agent": "./src/graph/workflow.py:graph"
+  },
+  "env": ".env"
+}
