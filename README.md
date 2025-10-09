@@ -149,117 +149,7 @@ LANGCHAIN_PROJECT=project-name
 
 ## 🎮 Usage Examples
 
-### Real-World Example: Complete Workflow (Validated Test)
-
-**Input:**
-```json
-POST http://localhost:8002/agent/execute
-{
-  "objective": "Build a product pricing analysis system: 1. Search the internet for 'average smartphone prices 2025' and save findings to market_research.txt. 2. Create prices.py with a function calculate_discount(price, percent). 3. Create product_catalog.csv with 5 smartphones (prices $500-$1200). 4. Edit prices.py to ADD a function apply_bulk_discount(prices_list, discount_percent). 5. Read product_catalog.csv and apply 15% discount using prices.py. 6. Generate final_report.txt with all findings."
-}
-```
-
-**System Execution Log:**
-```
-✅ Task 1: Market Research - COMPLETED (16.9s)
-  Created: market_research.txt (1055 bytes)
-  
-✅ Task 2: Create prices.py - COMPLETED (4.6s)
-  Created: prices.py (251 bytes)
-  
-✅ Task 3: Generate Catalog - COMPLETED (9.7s)
-  Created: product_catalog.csv (captured from code execution)
-  
-✅ Task 4: Enhance prices.py - COMPLETED (5.9s)
-  Modified: prices.py (appended 191 bytes)
-  
-✅ Task 5: Apply Discounts - COMPLETED (23.7s)
-  Created: discounted_product_catalog.csv (158 bytes)
-  
-✅ Task 6: Generate Report - COMPLETED (19.6s)
-  Created: final_report.txt (1515 bytes)
-
-Total Time: 80.4 seconds
-Success Rate: 6/6 (100%)
-```
-
-**Output Files:**
-
-**market_research.txt:**
-```
-Average Smartphone Prices in 2025:
-
-1. The average selling price is expected to move from $370 in 2025 
-   to $412 by 2029. In North America, prices expected to climb 7%.
-   [Source: Digital Information World]
-
-2. Handsets remain affordable worldwide, with prices under $250 
-   on average in 2025.
-   [Source: Voronoi]
-
-3. Smartphone prices are 60.48% lower in 2025 versus 2019.
-   [Source: US Bureau of Labor Statistics]
-```
-
-**prices.py:**
-```python
-def calculate_discount(price, percent):
-    """Calculate the discounted price."""
-    discount_amount = price * (percent / 100)
-    discounted_price = price - discount_amount
-    return discounted_price
-
-def apply_bulk_discount(prices_list, discount_percent):
-    """Apply a bulk discount to a list of prices."""
-    return [calculate_discount(price, discount_percent) for price in prices_list]
-```
-
-**product_catalog.csv:**
-```csv
-name,original_price
-Smartphone A,1130
-Smartphone B,608
-Smartphone C,605
-Smartphone D,1185
-Smartphone E,629
-```
-
-**final_report.txt:**
-```markdown
-# Final Report
-
-## Market Research Findings
-1. Average selling price: $370 in 2025, rising to $412 by 2029
-2. Prices remain under $250 globally in 2025
-3. 60.48% price decrease compared to 2019
-
-## Original Product Catalog
-| Name          | Original Price |
-|---------------|----------------|
-| Smartphone A  | $1130          |
-| Smartphone B  | $608           |
-| Smartphone C  | $605           |
-| Smartphone D  | $1185          |
-| Smartphone E  | $629           |
-
-## Discounted Prices (15% off)
-| Name          | Discounted Price | Savings  |
-|---------------|------------------|----------|
-| Smartphone A  | $960.50          | $169.50  |
-| Smartphone B  | $516.80          | $91.20   |
-| Smartphone C  | $514.25          | $90.75   |
-| Smartphone D  | $1007.25         | $177.75  |
-| Smartphone E  | $534.65          | $94.35   |
-
-**Total Savings: $623.55**
-
-## Recommendation
-Based on market research, focus on competitive pricing. With 
-average market prices at $370, our catalog ranges from $514-$1007 
-post-discount, positioning us in the mid-to-premium segment.
-```
-
-### Example 2: AI Trends Research
+### Example 1: Market Research and Analysis
 
 ```python
 # Objective: Research AI trends and create a comprehensive report
@@ -275,7 +165,7 @@ and create a detailed report with recommendations.
 # 4. Generate final comprehensive report
 ```
 
-### Example 3: Data Analysis Pipeline
+### Example 2: Data Analysis Pipeline
 
 ```python
 # Objective: Analyze sales data and create visualizations

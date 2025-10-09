@@ -423,72 +423,25 @@ def supervisor_node(state: AgentState) -> AgentState:
         logger.info(f"   Action: {decision.get('action')}")
         logger.info(f"   Reasoning: {decision.get('reasoning')}")
         logger.info(f"   Next task ID: {decision.get('next_task_id')}")
-        
-        # Execute the action
-        execution_result = supervisor_agent.execute_action(
-            state=state,
-            action=decision["action"],
-            task_id=decision.get("next_task_id")
-        )
-        
-        # Update state based on execution result
-        if execution_result["success"]:
-            # Add the execution result to messages
-            from langchain.schema import AIMessage
-            state["messages"].append(AIMessage(content=execution_result["result"]))
-            
-            # Handle different actions
-            if decision["action"] == "plan":
-                logger.info("Planning phase completed")
-                # State will be updated by the tools (update_todo_tool)
-                
-            elif decision["action"] == "execute":
-                logger.info(f"Execution phase completed for task {decision.get('next_task_id')}")
-                # State will be updated by the tools (task_tool)
-                
-            elif decision["action"] == "finalize":
-                logger.info("Finalization phase completed")
-                # Set final result
-                if not state["final_result"]:
-                    state["final_result"] = execution_result["result"]
-        else:
-            logger.error(f"Supervisor execution failed: {execution_result['result']}")
-            # Add error message
-            from langchain.schema import AIMessage
-            state["messages"].append(AIMessage(content=f"Error: {execution_result['result']}"))
-        
-        # Update state with latest TODO list from todo_manager
-        from src.core.tools.supervisor_tools import todo_manager
-        state["todo_list"] = todo_manager.get_all_tasks()
-        
-        # Update completed_tasks from TODO list
-        completed_tasks = [task for task in state["todo_list"] if task.get("status") == "completed"]
-        state["completed_tasks"] = completed_tasks
-        
-        # DEBUG: Log state after execution
-        logger.info(f"🔍 POST-EXECUTION DEBUG:")
-        logger.info(f"   TODO list after execution: {len(state.get('todo_list', []))} tasks")
-        logger.info(f"   Completed tasks: {len(state.get('completed_tasks', []))}")
-        logger.info(f"   TODO list content: {[t.get('task', 'NO_TASK')[:50] for t in state.get('todo_list', [])]}")
-        logger.info(f"   TODO status breakdown: pending={len([t for t in state.get('todo_list', []) if t.get('status') == 'pending'])}, completed={len([t for t in state.get('todo_list', []) if t.get('status') == 'completed'])}")
-        
-        # Check if we should continue or finalize
-        pending_tasks = [task for task in state["todo_list"] if task.get("status") == TASK_STATUS_PENDING]
-        
-        if decision["action"] == "finalize" or not pending_tasks:
-            logger.info("Supervisor node completed - finalizing")
-            if not state["final_result"]:
-                state["final_result"] = "All tasks completed successfully."
-        else:
-            logger.info(f"Supervisor node completed - {len(pending_tasks)} tasks remaining")
-        
+
+        # Defer execution to the execute_task node for visualization.
+        state["route"] = decision.get("action")
+        state["next_task_id"] = decision.get("next_task_id")
+
+        logger.info("Supervisor node completed decision; execution will occur in execute_task node")
         return state
         
     except Exception as e:
         logger.error(f"Error in supervisor_node: {e}")
-        # Add error to messages
-        from langchain.schema import AIMessage
-        state["messages"].append(AIMessage(content=f"Supervisor error: {str(e)}"))
+        # Log error in a safe field (avoid reserved 'messages' channel)
+        try:
+            logs = state.get("log_messages")
+            if isinstance(logs, list):
+                logs.append(f"Supervisor error: {str(e)}")
+            else:
+                state["log_messages"] = [f"Supervisor error: {str(e)}"]  # type: ignore
+        except Exception:
+            pass
         
         # Set final result to indicate error
         state["final_result"] = f"Supervisor error: {str(e)}"
